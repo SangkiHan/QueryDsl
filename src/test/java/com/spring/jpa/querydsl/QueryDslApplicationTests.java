@@ -2,7 +2,7 @@ package com.spring.jpa.querydsl;
 
 import static com.spring.jpa.querydsl.entity.QMember.member;
 import static com.spring.jpa.querydsl.entity.QTeam.team;
-
+import static com.querydsl.jpa.JPAExpressions.select;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -16,8 +16,10 @@ import org.springframework.test.annotation.Rollback;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.jpa.querydsl.entity.Member;
+import com.spring.jpa.querydsl.entity.QMember;
 import com.spring.jpa.querydsl.entity.Team;
 
 @SpringBootTest
@@ -185,5 +187,35 @@ class QueryDslApplicationTests {
 				.fetchOne();
 		
 		System.out.println(findMember.getTeam());
+	}
+	
+	@Test
+	public void subQuery() {
+		QMember memberSub = new QMember("subQuery");
+		Member findMember = queryFactory
+				.select(member)
+				.from(member)
+				.where(member.age.eq(
+							select(memberSub.age.max())
+							.from(memberSub)
+						))
+				.fetchOne();
+	}
+	
+	/*
+	 * From절에서의 서브쿼리를 지원하지 않는다.
+	 * */
+	@Test
+	public void subQueryIn() {
+		QMember memberSub = new QMember("subQuery");
+		Member findMember = queryFactory
+				.select(member)
+				.from(member)
+				.where(member.age.in(
+							select(memberSub.age.max())
+							.from(memberSub)
+							.where(memberSub.age.gt(10))
+						))
+				.fetchOne();
 	}
 }
