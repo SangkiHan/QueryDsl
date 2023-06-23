@@ -16,6 +16,8 @@ import org.springframework.test.annotation.Rollback;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.jpa.querydsl.entity.Member;
@@ -217,5 +219,51 @@ class QueryDslApplicationTests {
 							.where(memberSub.age.gt(10))
 						))
 				.fetchOne();
+	}
+	
+	@Test
+	public void basicCase() {
+		List<String> results = queryFactory
+				.select(member.age
+						.when(10).then("열살")
+						.when(20).then("스무살")
+						.otherwise("기타"))
+				.from(member)
+				.fetch();
+	}
+	
+	@Test
+	public void complexCase() {
+		List<String> results = queryFactory
+				.select(
+						new CaseBuilder()
+						.when(member.age.between(0, 10)).then("0~10살")
+						.when(member.age.between(10, 20)).then("10~20살")
+						.otherwise("기타")
+						)
+				.from(member)
+				.fetch();
+		
+		System.out.println(results);
+	}
+	
+	@Test
+	public void constant() {
+		List<Tuple> results = queryFactory
+				.select(member.username, Expressions.constant("HI"))
+				.from(member)
+				.fetch();
+		
+		System.out.println(results);
+	}
+	
+	@Test
+	public void concat() {
+		List<String> results = queryFactory
+				.select(member.username.concat("_").concat(member.age.stringValue()))
+				.from(member)
+				.fetch();
+		
+		System.out.println(results);
 	}
 }
