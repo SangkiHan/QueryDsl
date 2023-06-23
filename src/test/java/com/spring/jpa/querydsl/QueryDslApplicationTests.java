@@ -1,5 +1,10 @@
 package com.spring.jpa.querydsl;
 
+import static com.spring.jpa.querydsl.entity.QMember.member;
+import static com.spring.jpa.querydsl.entity.QTeam.team;
+
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
@@ -13,14 +18,11 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.jpa.querydsl.entity.Member;
-
-import static com.spring.jpa.querydsl.entity.QTeam.team;
-import static com.spring.jpa.querydsl.entity.QMember.member;
-
-import java.util.List;
+import com.spring.jpa.querydsl.entity.Team;
 
 @SpringBootTest
 @Transactional
+@SuppressWarnings("unused")
 class QueryDslApplicationTests {
 	
 	@Autowired EntityManager em;
@@ -35,8 +37,17 @@ class QueryDslApplicationTests {
 	@Rollback(value = false)
 	public void insertMember() {
 		for(int i=0; i<5; i++) {
-			Member member = new Member("�׽�Ʈ"+i, 28);
+			Member member = new Member("테스트"+i, 28);
 			em.persist(member);
+		}
+	}
+	
+	@Test
+	@Rollback(value = false)
+	public void insertTeam() {
+		for(int i=0; i<5; i++) {
+			Team team = new Team("Team"+i);
+			em.persist(team);
 		}
 	}
 
@@ -103,6 +114,7 @@ class QueryDslApplicationTests {
 		System.out.println(results);
 	}
 	
+	
 	@Test
 	public void aggregation() {
 		Tuple tuple = queryFactory
@@ -129,12 +141,49 @@ class QueryDslApplicationTests {
 				.select(
 						team.name, member.age.avg()
 						)
-				.from(member.team, team)
+				.from(member)
+				.join(member.team, team)
 				.groupBy(team.id)
 				.fetch();
 		Tuple tuple = tuples.get(0);
 		
 		String count = tuple.get(team.name);
 		double avg = tuple.get(member.age.avg());
+	}
+	
+	@Test
+	public void JoinOn() {
+		List<Tuple> results = queryFactory
+				.select(member, team)
+				.from(member)
+				.join(member.team, team)
+				.on(team.name.eq("TeamA"))
+				.fetch();
+		
+		Tuple tuple = results.get(0);
+		Member memberOne = tuple.get(member);
+		Team teamOne = tuple.get(team);
+	}
+	
+	@Test
+	public void JoinOnNoRelation() {
+		List<Tuple> results = queryFactory
+				.select(member,team)
+				.from(member)
+				.leftJoin(member.team, team )
+				.on(member.username.eq(team.name))
+				.fetch();
+	}		
+	
+	@Test
+	public void FetchJoin() {
+		Member findMember = queryFactory
+				.select(member)
+				.from(member)
+				.join(member.team, team).fetchJoin()
+				.where(member.username.eq("테스트1"))
+				.fetchOne();
+		
+		System.out.println(findMember.getTeam());
 	}
 }

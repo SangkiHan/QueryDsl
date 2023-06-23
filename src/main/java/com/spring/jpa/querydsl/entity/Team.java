@@ -26,6 +26,10 @@ public class Team extends BaseEntity{
 	@OneToMany(mappedBy = "team")
 	private List<Member> members = new ArrayList<>();
 	
+	public Team(String name) {
+		this.name = name;
+	}
+	
 	public Team(Long id, String name) {
 		this.id = id;
 		this.name = name;
