@@ -32,6 +32,11 @@ public class Member extends BaseEntity {
 		this.team = team;
 		team.getMembers().add(this);
 	}
+	
+	public Member(String username, int age) {
+		this.username = username;
+		this.age = age;
+	}
 
 	public Member(Long id, String username, int age) {
 		this.id = id;

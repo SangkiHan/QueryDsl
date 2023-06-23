@@ -19,3 +19,11 @@ member.username.like("테스트1%")//username like '테스트1%'
 member.username.contains("테스트1")//username like '%테스트1%'
 member.username.startsWith("테스트1")//username like '테스트1%'
 ```
+
+### 결과조회
+
+fetch() : 리스트조회  
+fetchOne() : 단건조회  
+fetchFirst() : limit(1) 최상위 한건  
+fetchResults() : 페이징 정보 포함, total count쿼리 추가실행  
+fetchCount() : count쿼리로 변경해서 count조회
