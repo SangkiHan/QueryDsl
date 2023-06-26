@@ -15,7 +15,6 @@ import lombok.ToString;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of= {"id","username","age"})
 public class Member extends BaseEntity {
 	@Id @GeneratedValue
@@ -26,6 +25,9 @@ public class Member extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "team_id")
 	private Team team;
+	
+	public Member() {
+	}
 	
 	public void changeTeam(Team team) {
 		this.team = team;
