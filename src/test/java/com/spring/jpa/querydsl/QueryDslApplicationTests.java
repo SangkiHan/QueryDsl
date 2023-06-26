@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
@@ -353,5 +354,31 @@ class QueryDslApplicationTests {
 				.fetch();
 		
 		System.out.println(results.toString());
+	}
+	
+	/*
+	 * BooleanBuilder를 활용한 동적쿼리
+	 * */
+	@Test
+	public void dynamicQuery_booleanBuilder1() {
+		String username = "member1";
+		Integer age = 10;
+		
+		BooleanBuilder builder = new BooleanBuilder();
+		
+		if(username!=null) {
+			builder.and(member.username.eq(username));
+		}
+		if(age!=null) {
+			builder.and(member.age.eq(age));
+		}
+		
+		List<MemberDto> results = queryFactory
+				.select(new QMemberDto(member.username, member.age))
+				.from(member)
+				.where(builder)
+				.fetch();
+		
+		System.out.println(results);
 	}
 }
