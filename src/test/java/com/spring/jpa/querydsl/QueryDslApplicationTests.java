@@ -435,4 +435,19 @@ class QueryDslApplicationTests {
 				.where(member.age.lt(30))
 				.execute();
 	}
+	
+	/*
+	 * Sql 함수호출
+	 * */
+	@Test
+	public void sqlFunction() {
+		List<String> result = queryFactory
+				.select(Expressions.stringTemplate(
+						"function('replace',{0},{1},{2})",
+								member.username, "테스트", "Test"))
+				.from(member)
+				.fetch();
+		
+		System.out.println(result);
+	}
 }
