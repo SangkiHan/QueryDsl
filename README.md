@@ -1,3 +1,32 @@
+### QueryDSl Gradle 설정
+``` gradle
+plugins {
+	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'	
+}
+
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+    main.java.srcDir querydslDir
+}
+configurations {
+	querydsl.extendsFrom compileClasspath
+}
+
+compileQuerydsl{
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+
+```
+
+
 ### QueryDsl 검색조건
 ``` java
 member.user.eq("테스트1")//username = '테스트1'
