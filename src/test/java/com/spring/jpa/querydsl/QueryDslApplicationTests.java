@@ -16,10 +16,14 @@ import org.springframework.test.annotation.Rollback;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.spring.jpa.querydsl.dto.MemberDto;
+import com.spring.jpa.querydsl.dto.QMemberDto;
 import com.spring.jpa.querydsl.entity.Member;
 import com.spring.jpa.querydsl.entity.QMember;
 import com.spring.jpa.querydsl.entity.Team;
@@ -221,6 +225,9 @@ class QueryDslApplicationTests {
 				.fetchOne();
 	}
 	
+	/*
+	 * case when then
+	 * */
 	@Test
 	public void basicCase() {
 		List<String> results = queryFactory
@@ -232,6 +239,10 @@ class QueryDslApplicationTests {
 				.fetch();
 	}
 	
+	
+	/*
+	 * case when then
+	 * */
 	@Test
 	public void complexCase() {
 		List<String> results = queryFactory
@@ -247,6 +258,9 @@ class QueryDslApplicationTests {
 		System.out.println(results);
 	}
 	
+	/*
+	 * 고정값들 지정해서 반환
+	 * */
 	@Test
 	public void constant() {
 		List<Tuple> results = queryFactory
@@ -257,6 +271,9 @@ class QueryDslApplicationTests {
 		System.out.println(results);
 	}
 	
+	/*
+	 * 문자열 합치기
+	 * */
 	@Test
 	public void concat() {
 		List<String> results = queryFactory
@@ -265,5 +282,76 @@ class QueryDslApplicationTests {
 				.fetch();
 		
 		System.out.println(results);
+	}
+	
+	/*
+	 * DTO의 Setter메소드를 감지하여 반환
+	 * */
+	@Test
+	public void projectionDtobySetter() {
+		List<MemberDto> results = queryFactory
+				.select(Projections.bean(MemberDto.class, member.username, member.age))
+				.from(member)
+				.fetch();
+		
+		System.out.println(results.toString());
+	}
+	
+	/*
+	 * 필드명으로 반환
+	 * Dto 필드명과 Entity의 필드가 같아야한다.
+	 * */
+	@Test
+	public void projectionDtobyField() {
+		List<MemberDto> results = queryFactory
+				.select(Projections.fields(MemberDto.class, member.username, member.age))
+				.from(member)
+				.fetch();
+		
+		System.out.println(results.toString());
+	}
+	
+	/*
+	 * DTO 생성자로 반환
+	 * 컴파일 시점에서의 오류를 잡지못한다. 런타임시점에서 오류가 발생한다.
+	 * */
+	@Test
+	public void projectionDtobyConstructor() {
+		List<MemberDto> results = queryFactory
+				.select(Projections.constructor(MemberDto.class, member.username, member.age))
+				.from(member)
+				.fetch();
+		
+		System.out.println(results.toString());
+	}
+	
+	/*
+	 * 서브쿼리의 별칭을 정할 때 사용
+	 * */
+	@Test
+	public void ExpressionUtilAs() {
+		List<MemberDto> results = queryFactory
+				.select(Projections.constructor(MemberDto.class, 
+						member.username, 
+						ExpressionUtils.as(member.age, "age")))
+				.from(member)
+				.fetch();
+		
+		System.out.println(results.toString());
+	}
+	
+	/*
+	 * DTO를 Q클래스로 만들어서 반환
+	 * */
+	@Test
+	public void QueryProjection() {
+		List<MemberDto> results = queryFactory
+				.select(
+						new QMemberDto(member.username, member.age)
+						)
+				.from(member)
+				.fetch();
+		
+		System.out.println(results.toString());
 	}
 }
