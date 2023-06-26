@@ -18,7 +18,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -380,5 +382,57 @@ class QueryDslApplicationTests {
 				.fetch();
 		
 		System.out.println(results);
+	}
+	
+	/*
+	 * 메소드를 활용한 동적쿼리
+	 * */
+	@Test
+	public void dynamicQuery_booleanBuilder2() {
+		String username = "member1";
+		Integer age = 10;
+		
+		List <MemberDto> results = queryFactory
+				.select(new QMemberDto(member.username, member.age))
+				.from(member)
+				.where(usernameEq(username), ageEq(age))
+				.fetch();
+		
+		System.out.println(results);
+	}
+	
+	private BooleanExpression usernameEq(String username) {
+		return username != null ? member.username.eq(username) : null;
+	}
+	
+	private BooleanExpression ageEq(Integer age) {
+		return age != null ? member.age.eq(age) : null;
+	}
+	
+	/*
+	 * bulk연산으로 대량 데이터를 update하면
+	 * 영속성 컨텍스트와 DB데이터가 상이하기 때문에 초기화 해줘야한다.
+	 * */
+	@Test
+	public void bulkUpdate() {
+		long count = queryFactory
+				.update(member)
+				.set(member.age, member.age.add(1))
+				.where(member.age.lt(30))
+				.execute();
+		
+		em.flush();
+		em.clear();
+	}
+	
+	/*
+	 * delete연산
+	 * */
+	@Test
+	public void bulkDelete() {
+		long count = queryFactory
+				.delete(member)
+				.where(member.age.lt(30))
+				.execute();
 	}
 }
