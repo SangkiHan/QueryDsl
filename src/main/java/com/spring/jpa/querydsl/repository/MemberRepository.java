@@ -1,17 +1,14 @@
 package com.spring.jpa.querydsl.repository;
 
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.spring.jpa.querydsl.entity.Member;
 
-public interface MemberRepository {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom{
 	
-	public void save(Member member);
+	//select m from Member m where m username = :username
+	List<Member> findByUsername(String username);
 	
-	public Optional<Member> findById(Long id);
-	
-	public List<Member> findAll();
-	
-	public List<Member> findByUsername(String username);
 }

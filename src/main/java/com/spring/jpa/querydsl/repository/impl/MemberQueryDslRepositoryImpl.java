@@ -18,23 +18,20 @@ import com.spring.jpa.querydsl.dto.MemberSearchCondition;
 import com.spring.jpa.querydsl.dto.MemberTeamDto;
 import com.spring.jpa.querydsl.dto.QMemberTeamDto;
 import com.spring.jpa.querydsl.entity.Member;
-import com.spring.jpa.querydsl.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class MemberQueryDslRepositoryImpl implements MemberRepository{
+public class MemberQueryDslRepositoryImpl{
 	
 	private final EntityManager em;
 	private final JPAQueryFactory queryFactory;
 
-	@Override
 	public void save(Member member) {
 		em.persist(member);
 	}
 
-	@Override
 	public Optional<Member> findById(Long id) {
 		return Optional.ofNullable(queryFactory
 				.select(member)
@@ -43,7 +40,6 @@ public class MemberQueryDslRepositoryImpl implements MemberRepository{
 				.fetchOne());
 	}
 
-	@Override
 	public List<Member> findAll() {
 		return queryFactory
 				.select(member)
@@ -51,7 +47,6 @@ public class MemberQueryDslRepositoryImpl implements MemberRepository{
 				.fetch();
 	}
 
-	@Override
 	public List<Member> findByUsername(String username) {
 		return queryFactory
 				.select(member)
